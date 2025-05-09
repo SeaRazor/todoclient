@@ -95,6 +95,7 @@ body {
   align-items: center;
   padding: 1rem 0;
   border-bottom: 1px solid var(--border-color);
+  gap: 1rem;
 }
 
 .todo-item:last-child {
@@ -307,6 +308,7 @@ body {
   border-top: 1px solid var(--border-color);
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .chat-input {
@@ -329,12 +331,18 @@ body {
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  max-height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
   transform: rotate(90deg);
+  align-self: center;
+  padding: 0;
 }
 
 .chat-send:hover {
