@@ -16,7 +16,7 @@ function AddTodoDialog({ open, onClose, onAdd }) {
     onAdd({
       title: title.trim(),
       completed,
-      expiryDate: expiryDate.toISOString(),
+      daysToExpire: daysToExpire,
     });
 
     setTitle('');

@@ -5,7 +5,7 @@ class ChatService {
   constructor() {
     // Initialize with a default API key - in production, this should be handled securely
     this.openai = new OpenAI({
-      apiKey: config.CHATGPT_API_KEY,
+      apiKey: config.CHATGPT_API_KEY, // Use API key from config
       dangerouslyAllowBrowser: true // Only for demo purposes
     });
   }

@@ -3,10 +3,18 @@ import { todoService } from '../services/todoService';
 import AddTodoDialog from './AddTodoDialog';
 import Checkbox from './Checkbox';
 
+function formatDate(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
 function TodoList() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
     fetchTodos();
@@ -36,7 +44,8 @@ function TodoList() {
     try {
       const todo = todos.find(t => t.id === id);
       const updatedTodo = await todoService.updateTodo(id, {
-        completed: !todo.completed,
+        ...todo,
+        isCompleted: !todo.isCompleted,
       });
       setTodos(todos.map(t => t.id === id ? updatedTodo : t));
     } catch (error) {
@@ -60,6 +69,19 @@ function TodoList() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  // Paging logic
+  const totalPages = Math.ceil(todos.length / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIdx = startIdx + ITEMS_PER_PAGE;
+  const todosToDisplay = todos.slice(startIdx, endIdx);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -75,20 +97,22 @@ function TodoList() {
           Add Todo
         </button>
       </div>
-
       <ul className="todo-items">
-        {todos.map((todo) => (
+        {todosToDisplay.map((todo) => (
           <li key={todo.id} className="todo-item">
             <Checkbox
-              checked={todo.completed}
+              checked={todo.isCompleted}
               onChange={() => toggleTodo(todo.id)}
             />
             <div className="todo-content">
-              <div className="todo-title" style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+              <div className="todo-title" style={{ textDecoration: todo.isCompleted ? 'line-through' : 'none' }}>
                 {todo.title}
               </div>
               <div className="todo-subtitle">
-                Days to expire: {getDaysToExpire(todo.expiryDate)}
+                Days to expire: {todo.daysToExpire}
+              </div>
+              <div className="todo-subtitle">
+                Created Date: {formatDate(todo.dateCreated)}
               </div>
             </div>
             <button
@@ -100,7 +124,14 @@ function TodoList() {
           </li>
         ))}
       </ul>
-
+      {/* Paging controls */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+          <button className="btn" onClick={handlePrevPage} disabled={currentPage === 1}>&laquo; Prev</button>
+          <span>Page {currentPage} of {totalPages}</span>
+          <button className="btn" onClick={handleNextPage} disabled={currentPage === totalPages}>Next &raquo;</button>
+        </div>
+      )}
       <AddTodoDialog
         open={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
@@ -110,4 +141,4 @@ function TodoList() {
   );
 }
 
-export default TodoList; 
+export default TodoList;

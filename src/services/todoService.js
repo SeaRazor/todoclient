@@ -1,49 +1,42 @@
-import { stubTodos } from './stubData';
+import axios from 'axios';
+import {config} from "../config.js";
 
-// In-memory storage for todos
-let todos = [...stubTodos];
-
-// Simulate network delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+let axiosConfig = {
+  headers: {
+    "Access-Control-Allow-Methods": "POST,GET,PUT,DELETE",
+    "Content-Type": "application/json",
+  }
+}
 
 export const todoService = {
   // Get all todos
   async getAllTodos() {
-    await delay(500); // Simulate network delay
+    const response = await axios.get(`${config.API_URL}todos`);
+    let todos;
+    todos = response.data;
+    return [...todos];
+  },
+
+  async getExpiredTodos() {
+    const response = await axios.get(`${config.API_URL}todos/expired`);
+    let todos;
+    todos = response.data;
     return [...todos];
   },
 
   // Create a new todo
   async createTodo(todo) {
-    await delay(500);
-    const newTodo = {
-      id: Math.max(0, ...todos.map(t => t.id)) + 1,
-      ...todo,
-      expiryDate: todo.expiryDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default to 7 days
-    };
-    todos.push(newTodo);
-    return newTodo;
-  },
-
-  // Update a todo
-  async updateTodo(id, updates) {
-    await delay(500);
-    const index = todos.findIndex(t => t.id === id);
-    if (index === -1) {
-      throw new Error('Todo not found');
-    }
-    todos[index] = { ...todos[index], ...updates };
-    return todos[index];
-  },
-
-  // Delete a todo
+    const response = await axios.post(`${config.API_URL}todos`, todo);
+    return response.data;
+} ,
   async deleteTodo(id) {
-    await delay(500);
-    const index = todos.findIndex(t => t.id === id);
-    if (index === -1) {
-      throw new Error('Todo not found');
-    }
-    todos = todos.filter(t => t.id !== id);
-    return true;
+    await axios.delete(`${config.API_URL}todos/${id}`);
   },
+  async updateTodo(id, todo) {
+    const response = await axios.put(`${config.API_URL}todos/${id}`, todo, axiosConfig);
+    return response.data;
+  },
+
+
+
 }; 
