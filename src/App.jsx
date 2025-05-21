@@ -5,11 +5,16 @@ import './styles.css'
 
 function App() {
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [todoRefreshKey, setTodoRefreshKey] = useState(0)
+
+  const handleTodoCreated = () => {
+    setTodoRefreshKey(k => k + 1)
+  }
 
   return (
     <div className="app">
       <div className="container">
-        <TodoList />
+        <TodoList refreshKey={todoRefreshKey} />
       </div>
       <button 
         className="chat-button"
@@ -17,7 +22,7 @@ function App() {
       >
         💬
       </button>
-      <ChatBot open={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <ChatBot open={isChatOpen} onClose={() => setIsChatOpen(false)} onTodoCreated={handleTodoCreated} />
     </div>
   )
 }

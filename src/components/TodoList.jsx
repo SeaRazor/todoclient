@@ -9,16 +9,17 @@ function formatDate(timestamp) {
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
-function TodoList() {
+function TodoList({ refreshKey }) {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterText, setFilterText] = useState("");
   const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
     fetchTodos();
-  }, []);
+  }, [refreshKey]);
 
   const fetchTodos = async () => {
     try {
@@ -69,11 +70,15 @@ function TodoList() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  // Paging logic
-  const totalPages = Math.ceil(todos.length / ITEMS_PER_PAGE);
+  // Filter logic
+  const filteredTodos = todos.filter(todo =>
+    todo.title.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredTodos.length / ITEMS_PER_PAGE);
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
-  const todosToDisplay = todos.slice(startIdx, endIdx);
+  const todosToDisplay = filteredTodos.slice(startIdx, endIdx);
 
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -90,6 +95,17 @@ function TodoList() {
     <div className="todo-list">
       <div className="todo-header">
         <h1 className="todo-title">Todo List</h1>
+        <input
+          className="form-input"
+          type="text"
+          placeholder="Filter by title..."
+          value={filterText}
+          onChange={e => {
+            setFilterText(e.target.value);
+            setCurrentPage(1);
+          }}
+          style={{ marginLeft: 16, flex: 1, maxWidth: 200 }}
+        />
         <button
           className="btn btn-primary"
           onClick={() => setIsAddDialogOpen(true)}
@@ -119,14 +135,14 @@ function TodoList() {
               className="todo-delete"
               onClick={() => deleteTodo(todo.id)}
             >
-              ✕
+              ×
             </button>
           </li>
         ))}
       </ul>
       {/* Paging controls */}
       {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+        <div className="paging-controls">
           <button className="btn" onClick={handlePrevPage} disabled={currentPage === 1}>&laquo; Prev</button>
           <span>Page {currentPage} of {totalPages}</span>
           <button className="btn" onClick={handleNextPage} disabled={currentPage === totalPages}>Next &raquo;</button>

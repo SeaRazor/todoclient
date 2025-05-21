@@ -3,7 +3,7 @@ import { chatService } from '../services/chatService';
 import { config } from '../config';
 import '../styles.css';
 
-function ChatBot({ open, onClose }) {
+function ChatBot({ open, onClose, onTodoCreated }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +35,12 @@ function ChatBot({ open, onClose }) {
     try {
       const response = await chatService.sendMessage(input);
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      // If the response indicates a todo was created, trigger refresh
+      if (typeof response === 'object' && response.createdByChat) {
+        onTodoCreated?.();
+      } else if (typeof response === 'string' && response.includes('todo created by chat')) {
+        onTodoCreated?.();
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
@@ -67,13 +73,14 @@ function ChatBot({ open, onClose }) {
         <div ref={messagesEndRef} />
       </div>
       <form className="chat-input-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
+        <textarea
           className="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
           disabled={isLoading}
+          rows={1}
+          style={{ resize: 'vertical' }}
         />
         <button type="submit" className="chat-send" disabled={isLoading}>
           ➤
@@ -83,4 +90,4 @@ function ChatBot({ open, onClose }) {
   );
 }
 
-export default ChatBot; 
+export default ChatBot;
