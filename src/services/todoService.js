@@ -17,8 +17,8 @@ export const todoService = {
     return [...todos];
   },
 
-  async getExpiredTodos() {
-    const response = await axios.get(`${config.API_URL}todos/expired`);
+  async getActualTodos() {
+    const response = await axios.get(`${config.API_URL}todos/actual`);
     let todos;
     todos = response.data;
     return [...todos];

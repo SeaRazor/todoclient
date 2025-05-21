@@ -10,8 +10,8 @@ function ChatBot({ open, onClose }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (config.CHATGPT_API_KEY) {
-      chatService.setApiKey(config.CHATGPT_API_KEY);
+    if (config.OPENAI_API_KEY) {
+      chatService.setApiKey(config.OPENAI_API_KEY);
     }
   }, []);
 
